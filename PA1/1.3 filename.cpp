@@ -26,7 +26,8 @@ int lcs(const string &a, const string &b, int a_len, int b_len, int k) {
         current = tmp;
     }
     int res = former[b_len];
-    delete[] p, q;
+    delete[] p;
+    delete[] q;
     return res;
 }
 

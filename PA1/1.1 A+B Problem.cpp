@@ -73,6 +73,8 @@ int main() {
             cout << "0";
         }
         cout << endl;
-        delete[] a_long, b_long, res;
+        delete[] a_long;
+        delete[] b_long;
+        delete[] res;
     }
 }

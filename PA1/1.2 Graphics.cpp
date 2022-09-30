@@ -69,5 +69,6 @@ int main() {
             printf("%d\n", res);
         }
     }
-    delete[] x, y;
+    delete[] x;
+    delete[] y;
 }
