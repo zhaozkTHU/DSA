@@ -3,9 +3,9 @@ using namespace std;
 
 class Node {
 public:
-    int value;
+    long long value;
     Node *pred, *succ;
-    Node(int value = 0, Node *pred = nullptr, Node *succ = nullptr)
+    Node(long long value = 0, Node *pred = nullptr, Node *succ = nullptr)
         : value(value), pred(pred), succ(succ) {};
     ~Node() = default;
 };
@@ -13,7 +13,7 @@ public:
 class Queue {
 private:
     Node *header, *trailer;
-    int _size;
+    long long _size;
 public:
     /// @brief 构造函数
     Queue() : _size(0) {
@@ -30,13 +30,13 @@ public:
     }
     /// @brief 队尾元素
     /// @return 返回队尾元素值
-    int back() {
+    long long back() {
         if (empty()) { exit(1); }
         return trailer->pred->value;
     }
     /// @brief 队尾添加元素
     /// @param e 添加元素的值
-    void push(const int &e) {
+    void push(const long long &e) {
         Node *tmp = new Node(e);
         tmp->succ = trailer; tmp->pred = trailer->pred;
         trailer->pred->succ = tmp; trailer->pred = tmp;
@@ -44,15 +44,15 @@ public:
     }
     /// @brief 队首元素
     /// @return 队首元素的值
-    int front() {
+    long long front() {
         if (empty()) { exit(1); }
         return header->succ->value;
     }
     /// @brief 弹出队首元素
     /// @return 队首元素的值
-    int pop_front() {
+    long long pop_front() {
         if (empty()) { exit(1); }
-        int res = front();
+        long long res = front();
         Node *new_start = header->succ->succ;
         delete header->succ;
         header->succ = new_start;
@@ -60,9 +60,9 @@ public:
         _size--;
         return res;
     }
-    int pop_back() {
+    long long pop_back() {
         if (empty()) { exit(1); }
-        int res = back();
+        long long res = back();
         Node *new_end = trailer->pred->pred;
         delete trailer->pred;
         trailer->pred = new_end;
@@ -73,48 +73,49 @@ public:
 };
 
 int cmp(const void *a, const void *b) {
-    return (*(int *)a - *(int *)b);
+    return int(*(long long *)a - *(long long *)b);
 }
 
-int binSearch(int *s, const int &e, int lo, int hi) {
+long long binSearch(long long *s, const long long &e, long long lo, long long hi) {
     while (lo < hi) {
-        int mi = (lo + hi) / 2;
+        long long mi = (lo + hi) / 2;
         e < s[mi] ? hi = mi : lo = mi + 1;
     }
     return lo - 1;
 }
 
 int main() {
-    int n;
-    cin >> n;
-    int *x = new int[n];
-    int *m = new int[n];
-    for (int i = 0; i < n; i++) {
-        cin >> x[i];
+    long long n;
+    scanf("%lld", &n);
+    // cin >> n;
+    long long *x = new long long[n];
+    long long *m = new long long[n];
+    for (long long i = 0; i < n; i++) {
+        scanf("%lld", &x[i]);
+        // cin >> x[i];
     }
-    for (int i = 0; i < n; i++) {
-        cin >> m[i];
+    for (long long i = 0; i < n; i++) {
+        scanf("%lld", &m[i]);
+        // cin >> m[i];
     }
-    int T;
+    long long T;
     cin >> T;
-    int *p = new int[T];
-    int *q = new int[T];
-    for (int i = 0; i < T; i++) {
-        cin >> p[i];
-    }
-    for (int i = 0; i < T; i++) {
-        cin >> q[i];
+    long long *p = new long long[T];
+    long long *q = new long long[T];
+    for (long long i = 0; i < T; i++) {
+        scanf("%lld%lld", &p[i], &q[i]);
+        // cin >> p[i] >> q[i];
     }
 
-    int start = 0;
+    long long start = 0;
     Queue que;
-    int *d = new int[n];
+    long long *d = new long long[n];
     d[0] = 0;
     d[1] = x[0];
     que.push(x[0]);
-    for (int i = 2; i < n; i++) {
-        int new_start = max(0, i - m[i]);
-        for (int j = start; j < new_start; j++) {
+    for (long long i = 2; i < n; i++) {
+        long long new_start = max((long long)(0), i - m[i]);
+        for (long long j = start; j < new_start; j++) {
             if (!que.empty() && que.front() == x[j]) {
                 que.pop_front();
             }
@@ -136,15 +137,15 @@ int main() {
         start = new_start;
     }
 
-    qsort(d, n, sizeof(int), cmp);
+    qsort(d, n, sizeof(long long), cmp);
 
-    for (int i = 0; i < n; i++) {
-        cout << d[i] << " ";
-    }
-    cout << endl;
-    for (int i = 0; i < T; i++) {
-        int low_risk = binSearch(d, p[i] - 1, 0, n) + 1;
-        int mid_risk = binSearch(d, q[i] - 1, 0, n) + 1 - low_risk;
-        cout << low_risk << " " << mid_risk << endl;
+    // for (long long i = 0; i < n; i++) {
+    //     cout << d[i] << " ";
+    // }
+    // cout << endl;
+    for (long long i = 0; i < T; i++) {
+        long long low_risk = binSearch(d, p[i] - 1, 0, n) + 1;
+        long long mid_risk = binSearch(d, q[i] - 1, 0, n) + 1 - low_risk;
+        printf("%lld %lld\n", low_risk, mid_risk);
     }
 }
