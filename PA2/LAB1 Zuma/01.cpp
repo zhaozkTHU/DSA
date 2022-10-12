@@ -4,9 +4,6 @@
 using namespace std;
 string a;
 
-/// @brief 
-/// @param rank 
-/// @author zhaozk
 void play(int rank) {
     int left = rank;
     int right = rank;
