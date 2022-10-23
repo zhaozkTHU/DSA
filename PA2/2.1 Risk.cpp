@@ -76,6 +76,7 @@ int cmp(const void *a, const void *b) {
     return int(*(long long *)a - *(long long *)b);
 }
 
+// 二分查找
 long long binSearch(long long *s, const long long &e, long long lo, long long hi) {
     while (lo < hi) {
         long long mi = (lo + hi) / 2;
@@ -87,16 +88,13 @@ long long binSearch(long long *s, const long long &e, long long lo, long long hi
 int main() {
     long long n;
     scanf("%lld", &n);
-    // cin >> n;
     long long *x = new long long[n];
     long long *m = new long long[n];
     for (long long i = 0; i < n; i++) {
         scanf("%lld", &x[i]);
-        // cin >> x[i];
     }
     for (long long i = 0; i < n; i++) {
         scanf("%lld", &m[i]);
-        // cin >> m[i];
     }
     long long T;
     cin >> T;
@@ -104,7 +102,6 @@ int main() {
     long long *q = new long long[T];
     for (long long i = 0; i < T; i++) {
         scanf("%lld%lld", &p[i], &q[i]);
-        // cin >> p[i] >> q[i];
     }
 
     long long start = 0;
@@ -114,35 +111,38 @@ int main() {
     d[1] = x[0];
     que.push(x[0]);
     for (long long i = 2; i < n; i++) {
-        long long new_start = max((long long)(0), i - m[i]);
+        long long new_start = max((long long)(0), i - m[i]); //区间的新起点
+
+        // 将起点前的结点删去
         for (long long j = start; j < new_start; j++) {
             if (!que.empty() && que.front() == x[j]) {
                 que.pop_front();
             }
         }
 
+        // queap队列操作
         while (true) {
+            // 队列为空直接添加
             if (que.empty()) {
                 que.push(x[i - 1]);
                 break;
             }
+            // 队尾大于等于新添加的直接添加
             if (que.back() >= x[i - 1]) {
                 que.push(x[i - 1]);
                 break;
             }
+            // 队尾小于，删去
             que.pop_back();
         }
 
-        d[i] = que.front();
+        d[i] = que.front(); // 队首即为正确答案
         start = new_start;
     }
 
+    // 对d[i]排序以便二分查找
     qsort(d, n, sizeof(long long), cmp);
 
-    // for (long long i = 0; i < n; i++) {
-    //     cout << d[i] << " ";
-    // }
-    // cout << endl;
     for (long long i = 0; i < T; i++) {
         long long low_risk = binSearch(d, p[i] - 1, 0, n) + 1;
         long long mid_risk = binSearch(d, q[i] - 1, 0, n) + 1 - low_risk;
