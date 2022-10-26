@@ -24,8 +24,11 @@ int main() {
     //     }
     // }
 
+    for (int i = 0; i < 500000; i++) {
+        printf("%c", 'A' + i % 26);
+    }
     printf("\n");
-    printf("%d\n", 1 << 13);
-    for (int i = 0; i < 1 << 13; i++)
-        printf("0 %c\n", 'A' + i % 26);
+    printf("%d\n", 500000);
+    for (int i = 0; i < 500000; i++)
+        printf("0 %c\n", 'Z' - i % 26);
 }
