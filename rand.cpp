@@ -4,8 +4,8 @@ using namespace std;
 
 int main() {
     srand((unsigned)time(nullptr));
-    for (int i = 0; i < 10,000,000; i++) {
-        printf("%d", rand() % 2);
+    for (int i = 0; i < 500000; i++) {
+        printf("%c", 'a' + rand() % 26);
     }
     printf("\n");
 }
