@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#define print_error() printf("Error in line %d\n", __LINE__); exit(1);
+#include <stdexcept>
 #define DEFAULT_CAPACITY 3
 using namespace std;
 
@@ -36,8 +36,12 @@ public:
     }
     int size() const { return _size; }
     bool empty() const { return _size == 0; }
+    void clear() {
+        delete[] _elem; _size = 0; _capacity = DEFAULT_CAPACITY;
+        _elem = new T[DEFAULT_CAPACITY];
+    }
     T &operator[] (int r) {
-        if (r >= _size || r < 0) print_error();
+        if (r >= _size || r < 0) throw runtime_error(to_string(__LINE__));
         return _elem[r];
     }
     void push_back(T r) {
@@ -66,6 +70,7 @@ struct TreeNode {
     ChildListNode *header, *trailer;
     TreeNode() : value(), size(), height(), parent(nullptr),
         child_position(nullptr), header(new ChildListNode), trailer(new ChildListNode) {}
+    // 递归求所有节点的大小
     int calcu_size() {
         if (size != 0) return size;
         size = 1;
@@ -74,14 +79,24 @@ struct TreeNode {
         }
         return size;
     }
+    // 递归求所有节点的高度
     int calcu_height() {
-        if (calcu_height != 0) return height;
+        if (height != 0) return height;
         height = 1;
         int max_height = 0;
         for (ChildListNode *p = header->succ; p != trailer; p = p->succ) {
             max_height = max(max_height, p->value->calcu_height());
         }
         height += max_height;
+        return height;
+    }
+    // 子节点高度已知，只求解当前节点的高度
+    int parcial_calcu_height() {
+        int max_height = 0;
+        for (auto p = header->succ; p != trailer; p = p->succ) {
+            if (p->value->height > max_height) max_height = p->value->height;
+        }
+        height = max_height + 1;
         return height;
     }
 };
@@ -107,23 +122,27 @@ int main() {
             parent.trailer->pred->succ = tmp; parent.trailer->pred = tmp;
         }
     }
+    tree[0].calcu_height(); tree[0].calcu_size();
     while (M--) {
         int flag;
         scanf("%d", &flag);
         // 子树移动操作
         if (flag == 0) {
             // 读取源子树位置
-            string a;
-            getline(cin, a);
-            istringstream str(a);
             Vector<int> path;
-            int word;
-            while (str >> word) path.push_back(word);
+            int childnum = 0;
+            scanf("%d", &childnum);
+            while (childnum--) {
+                int child;
+                scanf("%d", &child);
+                path.push_back(child);
+            }
+            // 处理源子树位置
             TreeNode *p = &tree[0];
             for (int i = 0; i < path.size(); i++) {
                 ChildListNode *res = p->header;
                 bool valid = true;
-                for (int j = 0; j <= i; j++) {
+                for (int j = 0; j <= path[i]; j++) {
                     res = res->succ;
                     if (res->value == nullptr) {
                         valid = false;
@@ -134,16 +153,22 @@ int main() {
                 p = res->value;
             }
             TreeNode &src = *p;
+
             // 读取目标位置
-            getline(cin, a);
-            istringstream str(a);
-            Vector<int> path;
-            while (str >> word) path.push_back(word);
+            path.clear();
+            childnum = 0;
+            scanf("%d", &childnum);
+            while (childnum--) {
+                int child;
+                scanf("%d", &child);
+                path.push_back(child);
+            }
+            // 处理目标位置
             p = &tree[0];
             for (int i = 0; i < path.size(); i++) {
                 ChildListNode *res = p->header;
                 bool valid = true;
-                for (int j = 0; j <= i; j++) {
+                for (int j = 0; j <= path[i]; j++) {
                     res = res->succ;
                     if (res->value == nullptr) {
                         valid = false;
@@ -154,11 +179,21 @@ int main() {
                 p = res->value;
             }
             TreeNode &pos = *p;
+
             // 读取rank
-            int rank; cin >> rank;
+            int rank; scanf("%d", &rank);
             // 从源树中移除此节点
             src.child_position->pred->succ = src.child_position->succ;
             src.child_position->succ->pred = src.child_position->pred;
+            for (auto tmp = src.parent; tmp != nullptr; tmp = tmp->parent) {
+                tmp->size -= src.size;
+
+            }
+            for (auto tmp = src.parent; tmp != nullptr; tmp = tmp->parent) {
+                auto old_height = tmp->height;
+                if (old_height == tmp->parcial_calcu_height()) break; // 对父亲节点高度无影响，对祖先节点高度也一定没有影响
+            }
+
             // 在目标位置的子节点插入节点
             ChildListNode *tmp = pos.header;
             for (int i = 0; i < rank; i++) {
@@ -169,14 +204,67 @@ int main() {
             res->value = &src;
             res->pred = tmp; res->succ = tmp->succ;
             tmp->succ->pred = res; tmp->succ = res;
+            for (auto i = &pos; i != nullptr; i = i->parent) {
+                i->size += src.size;
+            }
+            for (auto i = &pos; i != nullptr; i = i->parent) {
+                auto old_height = i->height;
+                if (old_height == i->parcial_calcu_height()) break;
+            }
         }
         // 子树查询操作
         else if (flag == 1) {
+            Vector<int> path;
+            int childnum = 0;
+            scanf("%d", &childnum);
+            while (childnum--) {
+                int child;
+                scanf("%d", &child);
+                path.push_back(child);
+            }
 
+            auto p = &tree[0];
+            for (int i = 0; i < path.size(); i++) {
+                ChildListNode *res = p->header;
+                bool valid = true;
+                for (int j = 0; j <= path[i]; j++) {
+                    res = res->succ;
+                    if (res->value == nullptr) {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (valid == false) break;
+                p = res->value;
+            }
+            printf("%d\n", p->height - 1);
         }
-        else if (flag == 3) {
+        else if (flag == 2) {
+            Vector<int> path;
+            int childnum = 0;
+            scanf("%d", &childnum);
+            while (childnum--) {
+                int child;
+                scanf("%d", &child);
+                path.push_back(child);
+            }
 
+            auto p = &tree[0];
+            for (int i = 0; i < path.size(); i++) {
+                ChildListNode *res = p->header;
+                bool valid = true;
+                for (int j = 0; j <= path[i]; j++) {
+                    res = res->succ;
+                    if (res->value == nullptr) {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (valid == false) break;
+                p = res->value;
+            }
+            printf("%d\n", p->size);
         }
-        else print_error();
+        else throw runtime_error(to_string(__LINE__));
     }
 }
