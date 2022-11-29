@@ -7,7 +7,7 @@
 using namespace std;
 
 int main() {
-        // in case of defined(NDEBUG), do not write `assert(1 == scanf("%d", &n))'
+    // in case of defined(NDEBUG), do not write `assert(1 == scanf("%d", &n))'
     int res; // store the return value of `scanf'
     int n;
     res = scanf("%d", &n);

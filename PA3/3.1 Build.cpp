@@ -30,7 +30,7 @@ struct Node {
         return size;
     }
     int calcu_height() {
-        if (height != 0) return size;
+        // if (height != 0) return size;
         height = 1;
         int max_height = 0;
         for (auto i = header->succ; i != trailer; i = i->succ)
