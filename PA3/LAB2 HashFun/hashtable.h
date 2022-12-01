@@ -18,11 +18,27 @@ struct hashing_strategy {
 struct naive_hashing : public hashing_strategy {
     int operator()(char *str, int N) override;
 };
+struct allplus_hashing : public hashing_strategy {
+    int operator()(char *str, int N) override;
+};
+struct code_hashing : public hashing_strategy {
+    int operator()(char *str, int N) override;
+};
 struct collision_strategy {
     virtual void init() = 0;// pure virtual function
     virtual int operator()(hash_entry *Table, int table_size, int last_choice) = 0;
 };
 struct linear_probe : public collision_strategy {
+    void init();
+    int operator()(hash_entry *Table, int table_size, int last_choice) override;
+};
+struct double_square_probe : public collision_strategy {
+    int time;
+    void init();
+    int operator()(hash_entry *Table, int table_size, int last_choice) override;
+};
+struct overflow_probe : public collision_strategy {
+    bool overflow;
     void init();
     int operator()(hash_entry *Table, int table_size, int last_choice) override;
 };
@@ -36,7 +52,9 @@ struct hashtable {
         Table = new hash_entry[table_size];
     }
     bool insert(hash_entry entry) {
-        int last_choice = (*my_hashing)(entry.my_string, table_size);
+        int new_table_size =
+            dynamic_cast<overflow_probe *>(my_collision) == nullptr ? table_size : table_size / 2;
+        int last_choice = (*my_hashing)(entry.my_string, new_table_size);
         my_collision->init();
         while (Table[last_choice].my_string != NULL) { // loop infinitely? return false when no more space?
             last_choice = (*my_collision)(Table, table_size, last_choice);
@@ -45,7 +63,9 @@ struct hashtable {
         return true;
     }
     int query(char *query_string) {
-        int last_choice = (*my_hashing)(query_string, table_size);
+        int new_table_size =
+            dynamic_cast<overflow_probe *>(my_collision) == nullptr ? table_size : table_size / 2;
+        int last_choice = (*my_hashing)(query_string, new_table_size);
         my_collision->init();
         while (Table[last_choice].my_string != NULL &&
             strcmp(Table[last_choice].my_string, query_string) != 0) { // 未处理的情况: 哈希表已满?
