@@ -90,6 +90,9 @@ int main() {
             root->remove(str[j]);
         right = new_right;
         res[i] = root->query(str[i]);
+        if (res[i] == i) {
+            res[i] = left == i ? i + 1 : left;
+        }
     }
     for (int i = 0; i < n; i++)
         printf("%d\n", res[i]);
