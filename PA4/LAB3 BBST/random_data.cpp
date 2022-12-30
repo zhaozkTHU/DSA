@@ -6,11 +6,14 @@ using namespace std;
 int main() {
     srand((unsigned)time(nullptr));
     int n;
-    scanf("%d", &n);
+    int insert_rate;
+    int delete_rate;
+    scanf("%d%d%d", &n, &insert_rate, &delete_rate);
     set<int> tree;
+    printf("%d\n", n);
     for (int i = 0; i < n; i++) {
-        int op = rand() % 3;
-        if (op == 0) {
+        int op = rand() % 100;
+        if (op >= insert_rate && op < delete_rate + insert_rate) {
             if (tree.empty()) {
                 while (true) {
                     int x = rand() % MAX_X;
@@ -22,14 +25,13 @@ int main() {
                 }
             }
             else {
-                int x = rand() % tree.size() + 1;
+                int x = rand() % tree.size();
                 auto i = tree.begin();
-                for (i = tree.begin(); x != 0; x -= 1)
-                    i++;
+                while(x--) i++;
                 printf("B %d\n", *i);
             }
         }
-        if (op == 1) {
+        else if (op < insert_rate) {
             while (true) {
                 int x = rand() % MAX_X;
                 if (tree.count(x))
@@ -39,7 +41,7 @@ int main() {
                 break;
             }
         }
-        if (op == 2) {
+        else {
             int x = rand() % MAX_X;
             printf("C %d\n", x);
         }
